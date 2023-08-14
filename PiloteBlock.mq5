@@ -14,22 +14,18 @@
 #include "features\\candle_struct.mqh"
 #include "features\\ema.mqh"
 #include "features\\limit_operation.mqh"
-#include "features\\limit_per_candle.mqh"
+#include "features\\set_timer.mqh"
 
 void operation_module()
     {
-        if(rates[1].close < rates[candle_struct_last_pilote_bearish_index].low && ema_flag_bearish == ON && limit_per_candle_flag == ON && limit_operation_flag == OFF)
+        if(rates[1].close < rates[candle_struct_last_pilote_bearish_index].low && ema_flag_bearish == ON && limit_operation_flag == OFF && set_timer_state == ON)
             {
                 select_position_bearish();
-                
-                limit_per_candle_last_operation = iBars(_Symbol, PERIOD_CURRENT);
             }
             
-        if(rates[1].close > rates[candle_struct_last_pilote_bullish_index].high && ema_flag_bullish == ON && limit_per_candle_flag == ON && limit_operation_flag == OFF)
+        if(rates[1].close > rates[candle_struct_last_pilote_bullish_index].high && ema_flag_bullish == ON && limit_operation_flag == OFF && set_timer_state == ON)
             {
                 select_position_bullish();
-                
-                limit_per_candle_last_operation = iBars(_Symbol, PERIOD_CURRENT);
             }            
     }
 
@@ -58,8 +54,6 @@ void OnTick()
         
         limit_operation_ontick();
         
-        limit_per_candle_ontick();
-        
         operation_module();
     
         Comment(
@@ -70,6 +64,26 @@ void OnTick()
                candle_struct_string,
                ema_string,
                limit_operation_string,
-               limit_per_candle_string
+               "\n\n ", EnumToString(set_timer_state)
         );
-    } 
+    }
+    
+void OnTradeTransaction(const MqlTradeTransaction& transaction, const MqlTradeRequest& request, const MqlTradeResult& result)
+    {
+        if(transaction.type == TRADE_TRANSACTION_ORDER_ADD && transaction.order_type == ORDER_TYPE_BUY)
+            {
+                set_timer_last_operation = ORDER_TYPE_SELL;
+            }
+
+        if(transaction.type == TRADE_TRANSACTION_ORDER_DELETE && transaction.order_type == set_timer_last_operation)
+            {
+                EventSetTimer(set_timer);
+                
+                set_timer_state = OFF;
+            }            
+    }
+
+void OnTimer()
+    {
+        set_timer_state = ON;
+    }

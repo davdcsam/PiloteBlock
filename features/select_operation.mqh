@@ -1,10 +1,12 @@
 #include "send_order.mqh"
 
+input group "Select Operation"
+
 input ENUM_ORDER_TYPE select_position_input_bearish = ORDER_TYPE_SELL;//Select Order for Bearish
 
 input ENUM_ORDER_TYPE select_position_input_bullish = ORDER_TYPE_BUY;//Select Order for Bullish
 
-input turn select_position_show_string = ON;
+input turn select_position_show_string = ON;//Show String
 
 string select_position_string;
 

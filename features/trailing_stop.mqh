@@ -106,6 +106,7 @@ void trailing_stop_ontick()
                             }
                     }
             }
+            
         if(trailing_stop_show_string == ON)
             {
                 trailing_stop_string =
